@@ -6,12 +6,15 @@
 
 ---
 
-## ⬇️ 直接下载 · Direct Download
+## ⬇️ 一键下载 · Download
 
-**[👉 点击此处下载 pdf_ocr_batch.py](https://raw.githubusercontent.com/mrlixiaoye/pdf-caj-ocr-converter/main/pdf_ocr_batch.py)**
+| 系统 · Platform | 下载链接 · Link | 使用方法 |
+|----------------|----------------|---------|
+| 🍎 **macOS** | [**点击下载 PDF_OCR_Mac.zip**](https://github.com/mrlixiaoye/pdf-caj-ocr-converter/releases/latest/download/PDF_OCR_Mac.zip) | 解压后双击 `PDF_OCR_Converter.app` 运行 |
+| 🪟 **Windows** | [**点击下载 PDF_OCR_Windows.exe**](https://github.com/mrlixiaoye/pdf-caj-ocr-converter/releases/latest/download/PDF_OCR_Windows.exe) | 直接双击 `.exe` 运行 |
 
-下载后在终端运行 `python3 pdf_ocr_batch.py` 即可启动，macOS 用户也可双击 `PDF_OCR_转换器.app`。  
-After downloading, run `python3 pdf_ocr_batch.py` in terminal. macOS users can also double-click `PDF_OCR_转换器.app`.
+> ⚠️ 程序本身无需安装 Python，但首次运行前需安装 **Tesseract OCR 引擎**，详见下方安装说明。  
+> No Python needed, but **Tesseract OCR engine** must be installed before first use — see Installation below.
 
 ---
 

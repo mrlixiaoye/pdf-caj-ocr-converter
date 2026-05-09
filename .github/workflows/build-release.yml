@@ -1,0 +1,110 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+jobs:
+  # ── macOS 构建 ─────────────────────────────────────────────────────────────
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install ocrmypdf pyinstaller pillow
+
+      - name: Build macOS .app with PyInstaller
+        run: |
+          pyinstaller \
+            --name "PDF_OCR_Converter" \
+            --windowed \
+            --onedir \
+            --collect-all ocrmypdf \
+            --hidden-import tkinter \
+            --hidden-import tkinter.ttk \
+            --hidden-import tkinter.filedialog \
+            --hidden-import tkinter.messagebox \
+            pdf_ocr_batch.py
+          cd dist
+          zip -r PDF_OCR_Mac.zip "PDF_OCR_Converter.app"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac
+          path: dist/PDF_OCR_Mac.zip
+
+  # ── Windows 构建 ───────────────────────────────────────────────────────────
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install ocrmypdf pyinstaller pillow
+
+      - name: Build Windows .exe with PyInstaller
+        shell: pwsh
+        run: |
+          pyinstaller `
+            --name "PDF_OCR_Windows" `
+            --windowed `
+            --onefile `
+            --collect-all ocrmypdf `
+            --hidden-import tkinter `
+            --hidden-import tkinter.ttk `
+            --hidden-import tkinter.filedialog `
+            --hidden-import tkinter.messagebox `
+            pdf_ocr_batch.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: dist/PDF_OCR_Windows.exe
+
+  # ── 发布 Release ───────────────────────────────────────────────────────────
+  release:
+    needs: [build-macos, build-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version || github.ref_name }}
+          name: "PDF / CAJ OCR 转换器 ${{ github.event.inputs.version || github.ref_name }}"
+          body: |
+            ## 📥 一键下载 · Download
+
+            | 系统 | 点击下载 |
+            |------|---------|
+            | 🍎 **macOS** | [PDF_OCR_Mac.zip](https://github.com/mrlixiaoye/pdf-caj-ocr-converter/releases/latest/download/PDF_OCR_Mac.zip) |
+            | 🪟 **Windows** | [PDF_OCR_Windows.exe](https://github.com/mrlixiaoye/pdf-caj-ocr-converter/releases/latest/download/PDF_OCR_Windows.exe) |
+
+            **macOS**：下载解压后双击 `PDF_OCR_Converter.app` 运行
+            **Windows**：下载后直接双击 `PDF_OCR_Windows.exe` 运行
+
+            > ⚠️ 首次使用前需安装 Tesseract OCR 引擎，详见 [README 安装说明](https://github.com/mrlixiaoye/pdf-caj-ocr-converter#-安装--installation)
+          files: |
+            mac/PDF_OCR_Mac.zip
+            windows/PDF_OCR_Windows.exe
+          draft: false
+          prerelease: false
